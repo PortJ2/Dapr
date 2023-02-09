@@ -1,0 +1,32 @@
+version: '3.4'
+
+services:
+  pubsub1:
+    image: ${DOCKER_REGISTRY-}pubsub1
+    build:
+      context: .
+      dockerfile: src/Microservices/PubSub1/Dockerfile
+    ports: 
+      - "51000:50001"
+
+  pubsub1-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "PubSub1", "-app-port", "80", "-components-path", "./components/" ]
+    depends_on:
+      - pubsub1
+    network_mode: "service:pubsub1"
+
+  pubsub2:
+    image: ${DOCKER_REGISTRY-}pubsub2
+    build:
+      context: .
+      dockerfile: src/Microservices/PubSub2/Dockerfile
+    ports:
+      - "52000:50001"
+  
+  pubsub2-dapr:
+    image: "daprio/daprd:latest"
+    command: [ "./daprd", "-app-id", "PubSub2", "app-port", "80", "-components-path", "./components/" ]
+    depends_on:
+      - pubsub2
+    network_mode: "service:pubsub2"
